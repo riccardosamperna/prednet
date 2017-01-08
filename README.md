@@ -1,4 +1,6 @@
-# prednet
+# A closer look to the "PredNet": investigation of human attention mechanism on artificial neural networks
+
+## prednet
 
 Code and models accompanying [Deep Predictive Coding Networks for Video Prediction and Unsupervised Learning] (https://arxiv.org/abs/1605.08104) by Bill Lotter, Gabriel Kreiman, and David Cox.
 
@@ -8,41 +10,47 @@ The PredNet is a deep recurrent convolutional neural network that is inspired by
 The architecture is implemented as a custom layer<sup>1</sup> in [Keras] (http://keras.io/). Tested on Keras 1.0.7 with [theano] (http://deeplearning.net/software/theano/) backend and Python 2.7.
 See http://keras.io/ for instructions on installing Keras and its list of dependencies.
 For Torch implementation, see [torch-prednet] (https://github.com/e-lab/torch-prednet).
+
+(Text cited directly from Github repository of original project: https://github.com/coxlab/prednet)
+
 <br>
 
-## KITTI Demo
+## EgoHands Experiment
 
-Code is included for training the PredNet on the raw [KITTI] (http://www.cvlibs.net/datasets/kitti/) dataset.
-We include code for downloading and processing the data, as well as training and evaluating the model.
-The preprocessed data and can also be downloaded directly using `download_data.sh` and the **trained weights** by running `download_models.sh`.
-The model download will include the original weights trained for t+1 prediction, as well as the fine-tuned weights trained to extrapolate predictions for multiple timesteps (see paper for details).
+Almost all new files in this forked repository are slight adaptations of the original code and follows the same name convention. In this experiment I trained the model on the EgoHands dataset: http://vision.soic.indiana.edu/projects/egohands/, with and without additional noise in the training set. The aim of the project was to investigate the ability of the neural network to filter relevant information (comparable to human attention mechanism). In order to reproduce the experiment please read carefully below.
 
-### Steps
-1. **Download/process data**
+## Setup
+
+The code was tested with Python 2.7, Keras 1.1.1 and Theano 0.8. Please make sure that in Keras configuration file "image_dim_ordering": "th" and "backend": "theano". To run the training on a GPU please read Keras documentation: https://keras.io/getting-started/faq/#how-can-i-run-keras-on-gpu
+
+1. **Download data**
 	```bash
-	python process_kitti.py
+	./download_ego.sh
 	```
-	This will scrape the KITTI website to download the raw data from the city, residential, and road categories (~165 GB) and then process the images (cropping, downsampling).
-	Alternatively, the processed data (~3 GB) can be directly downloaded by executing `download_data.sh`
+	Run this script inside the prednet folder. This will download the EgoHands dataset (~8 GB) and it will organise the directories in order for the next steps to work properly.
 	<br>
 	<br>
 
-2. **Train model**
+2. **Process data**
 	```bash
-	python kitti_train.py
+	python process_ego.py
 	```
-	This will train a PredNet model for t+1 prediction.
-	See [Keras FAQ] (http://keras.io/getting-started/faq/#how-can-i-run-keras-on-gpu) on how to run using a GPU.
-	**To download pre-trained weights**, run `download_models.sh`
+	This will process the images, downsampling the videos from 30 to 10 fps and it will crop the images to 128x160 to comply with the neural network input size.
 	<br>
 	<br>
 
-3. **Evaluate model**
+3. (Optional) **Add noise samples to training set**
 	```bash
-	python kitti_evaluate.py
+	python add_noise_to_egotrain.py
 	```
-	This will output the mean-squared error for predictions as well as make plots comparing predictions to ground-truth.
-
+	This will add to the training set a number of noisy samples proportional to the NOISE_RATIO adjustable in the ego_settings.py configuration file. (If you are executing this step, please remember to set also the variable NOISE inside ego_settings.py to 1).
+	<br>
+	<br>
+4. **Train the model**
+	```bash
+	python ego_train.py
+	```
+	This will train a PredNet model for t+1 prediction. 
 <br>
 
 <sup>1</sup> Note on implementation:  PredNet inherits from the Recurrent layer class, i.e. it has an internal state and a step function. Given the top-down then bottom-up update sequence, it must currently be implemented in Keras as essentially a 'super' layer where all layers in the PredNet are in one PredNet 'layer'. This is less than ideal, but it seems like the most efficient way as of now. We welcome suggestions if anyone thinks of a better implementation.  
