@@ -50,7 +50,14 @@ The code was tested with Python 2.7, Keras 1.1.1 and Theano 0.8. Please make sur
 	```bash
 	python ego_train.py
 	```
-	This will train a PredNet model for t+1 prediction. 
+	This will train a PredNet model for t+1 prediction. It is highly recommended to run the training on a GPU, it is going to take way less time. I also provided a script (nn_train.sh) to submit a job in a Slurm queue.
+	<br>
+	<br>
+5. **Evaluate the model**
+	```bash
+	python ego_evaluate.py
+	```
+	This will output the mean-squared error for predictions as well as make plots comparing predictions to ground-truth.
 <br>
 
 <sup>1</sup> Note on implementation:  PredNet inherits from the Recurrent layer class, i.e. it has an internal state and a step function. Given the top-down then bottom-up update sequence, it must currently be implemented in Keras as essentially a 'super' layer where all layers in the PredNet are in one PredNet 'layer'. This is less than ideal, but it seems like the most efficient way as of now. We welcome suggestions if anyone thinks of a better implementation.  
