@@ -1,4 +1,4 @@
-# A closer look to the "PredNet": investigation of human attention mechanism on artificial neural networks
+# A closer look at the "PredNet": investigation of human attention mechanism on artificial neural networks
 
 ## prednet
 
